@@ -1,6 +1,6 @@
-interface Database<T> {
-  get(id: string): T;
-  set(id: string, value: T): void;
+interface Database<T, K> {
+  get(id: K): T;
+  set(id: K, value: T): void;
 }
 
 interface Persistable {
@@ -8,18 +8,20 @@ interface Persistable {
     restoreFromString(storedState: string): void;
   }
 
-class ImMemoryDatabase<T> implements Database<T> {
-  protected db: Record<string, T> = {};
+type DBKeyType =  string | number | symbol
 
-  get(id: string): T {
+class ImMemoryDatabase<T, K extends DBKeyType> implements Database<T, K> {
+  protected db: Record<K, T> = {} as Record<K, T>;
+
+  get(id: K): T {
     return this.db[id];
   }
-  set(id: string, value: T): void {
+  set(id: K, value: T): void {
     this.db[id] = value;
   }
 }
 
-class PersistentMemoryDb<T> extends ImMemoryDatabase<T>
+class PersistentMemoryDb<T, K extends DBKeyType> extends ImMemoryDatabase<T, K>
   implements Persistable {
   saveToString(): string {
     return JSON.stringify(this.db);
@@ -29,9 +31,9 @@ class PersistentMemoryDb<T> extends ImMemoryDatabase<T>
   }
 }
 
-const myDb = new PersistentMemoryDb<number>();
+const myDb = new PersistentMemoryDb<number, string>();
 
-myDb.set('foo',22)
+myDb.set('55',22)
 
-console.log(myDb.get('foo'))
+console.log(myDb.get('55'))
 
